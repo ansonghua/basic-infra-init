@@ -1,0 +1,7 @@
+root_domain = "christmaslocker.com"
+domain_name = "uat.christmaslocker.com"
+bucket_name = "uat.christmaslocker.com"
+env = "uat"
+stage = "sdlc"
+aws_account_number ="261370896889"
+region  = "us-east-1"

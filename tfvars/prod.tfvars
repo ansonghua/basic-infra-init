@@ -1,0 +1,7 @@
+root_domain = "christmaslocker.com"
+domain_name = "christmaslocker.com"
+bucket_name = "christmaslocker.com"
+env = "prod"
+stage = "cust"
+aws_account_number ="237849564662"
+region  = "us-east-1"

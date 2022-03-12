@@ -56,6 +56,8 @@ pipeline {
         docker {
             //image 'cafebabe2018/my-tool'
             image 'hashicorp/terraform'
+            // label 'LINUX-SLAVE'
+            args  '--entrypoint="" -u root -v /opt/jenkins/.aws:/root/.aws'
         }
     }
     options {

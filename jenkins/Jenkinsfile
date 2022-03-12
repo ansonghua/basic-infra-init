@@ -1,0 +1,111 @@
+/*
+ *=================================================================================================================
+ *NAME: Jenkinsfile
+ *DESCRIPTION: Jenkinsfile
+ *=================================================================================================================
+ */
+
+// TO USE JENKINS CREDENTIALS TO STORE YOUR IAM CREDENTIALS, USE THIS BLOCK OF CODE.
+// THIS HAS PRIMARILY BEEN IMPLEMENTED TO SIMPLIFY THIS EXAMPLE AND SHOULD NOT BE
+// THE LOCATION OF YOUR CREDENTIALS
+// -------- ALSO SEE SECTION BELOW MARKED WITH 'DANGER WILL ROBINSON' --------------
+def awsCredentialsId = 'local-deployer-credential-id' // This will be the identifier in the Jenkins Credentials
+// DANGER WILL ROBINSON ------------------------------------------------------------
+// TO USE VAULT TO STORE YOUR IAM CREDENTIALS (RECOMMENDED), USE THIS BLOCK OF CODE.
+// -------- ALSO SEE SECTION BELOW MARKED WITH 'DANGER WILL ROBINSON' --------------
+// String manageVaultTokenId = 'vault-manage-token'
+// String VAULT_ADDR = 'https://serviceregistry.rgare.net:8201'
+// String VAULT_PREFIX = 'secret/myapp'   // No trailing slash
+// String VAULT_PATH = "${VAULT_PREFIX}/svcaccounts"   // No trailing slash
+// String TERRAFORM_CREDS = 'myapp/terraform-ci-deploy-sdlc'
+// Vault Plugin Configuration
+// def vaultConfiguration = [
+//         vaultUrl: VAULT_ADDR,
+//         vaultCredentialId: manageVaultTokenId,
+//         engineVersion: 1,
+// ]
+// // Vault Path-to-Variable Mapping
+// def vaultSecrets = [
+//         [
+//                 path: "${VAULT_PATH}/${TERRAFORM_CREDS}",   // ITAM shared
+//                 secretValues: [
+//                         [envVar: 'TFID', vaultKey: 'aws_access_key_id'],
+//                         [envVar: 'TFKEY', vaultKey: 'aws_secret_access_key'],
+//                 ],
+//         ],
+// ]
+def specificCause = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+def jenkinsUID = "${specificCause.userId[0]}"
+def aws_env_stage_map = [
+    "poc": "poc",
+    "play": "poc",
+    "dev": "sdlc",
+    "test": "sdlc",
+    "prod": "cust"
+]
+def stage_aws_account_number_map = [
+    "poc": "237849564662",
+    "sdlc": "237849564662",
+    "cust": "237849564662"
+]
+def log_choices = ['ERROR','WARN','INFO','DEBUG','TRACE']
+// assume_role duration -- TODO
+def region = 'us-east-1'  // TODO
+pipeline {
+    agent { 
+        docker {
+            image 'cafebabe2018/my-tool'
+        }
+    }
+    options {
+        timestamps()
+        buildDiscarder(logRotator(daysToKeepStr: '1095'))   // 3 years
+        disableConcurrentBuilds()
+    }
+    triggers {
+        githubPush()
+    }
+    parameters {
+        string( defaultValue: 'asap-deployer', name: 'deployerRoleName', trim: true )
+        choice( choices: ['plan', 'apply'], name: 'terraformAction' )
+        choice( choices: ['poc','play','dev','test','prod'], name: 'awsEnvironment' )
+        choice(choices: log_choices, description: 'Terraform Logging Level', name: 'TF_LOG_LEVEL')
+        string(defaultValue: "-input=false -no-color", description: 'Options for Terraform CLI', name: 'TF_OPTS')
+    }
+    environment {
+        TF_IN_AUTOMATION      = '1'
+        DEPLOY_ROLE = "${awsEnvironment in ['poc','play'] ? 'asap-deployer' : 'asap-deployer'}"
+    }
+    stages {
+        stage('Preparation') {
+            steps {
+                script {
+                    //Clean the workspae prior to execution.
+                    cleanWs()
+                    //Explicitly checkout the code after cleaning the workspace
+                    checkout scm
+                    env.STAGE = aws_env_stage_map["$awsEnvironment"]
+                    env.AWS_ACCOUNT_NUMBER = stage_aws_account_number_map["$env.STAGE"]
+                }
+            }
+        }
+        stage('RunTerraform') {
+            steps {
+                withAWS(region:"${region}", credentials:"${awsCredentialsId}", role:"${env.DEPLOY_ROLE}", roleAccount:"${env.AWS_ACCOUNT_NUMBER}", duration: 3600, roleSessionName: 'deploy-infra-session'){
+                    sh script: """
+                        set -Eeuxo pipefail
+                        cd terraform
+                        tfenv use min-required || (export TFENV_CURL_OUTPUT=0 && tfenv install min-required && tfenv use min-required)
+                        chmod +x ../jenkins/${awsEnvironment}.sh
+                        ../jenkins/${awsEnvironment}.sh ${terraformAction}
+                    """
+                }
+            }
+        }
+    }
+    post {
+        cleanup {
+            cleanWs(cleanWhenAborted: false)
+        }
+    }
+}

@@ -1,0 +1,8 @@
+root_domain = "christmaslocker.com.cloud."
+domain_name = "poc.christmaslocker.com.cloud"
+bucket_name = "poc.christmaslocker.com.cloud"
+env = "poc"
+stage = "poc"
+aws_account_number ="237849564662"
+region  = "us-east-1"
+vpc_name = "ANR00"

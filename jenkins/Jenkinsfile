@@ -54,7 +54,8 @@ def region = 'us-east-1'  // TODO
 pipeline {
     agent { 
         docker {
-            image 'cafebabe2018/my-tool'
+            //image 'cafebabe2018/my-tool'
+            image 'hashicorp/terraform'
         }
     }
     options {

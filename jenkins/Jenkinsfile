@@ -95,14 +95,10 @@ pipeline {
         stage('RunTerraform') {
             steps {
                 withAWS(region:"${region}", credentials:"${awsCredentialsId}", role:"${env.DEPLOY_ROLE}", roleAccount:"${env.AWS_ACCOUNT_NUMBER}", duration: 3600, roleSessionName: 'deploy-infra-session'){
+                    cd terraform
+                    chmod +x ../jenkins/"${awsEnvironment}".sh
+                    sh ../jenkins/"${awsEnvironment}".sh "${terraformAction}"
                     
-                    sh script: """
-                        set -Eeuxo pipefail
-                        cd terraform
-                        tfenv use min-required || (export TFENV_CURL_OUTPUT=0 && tfenv install min-required && tfenv use min-required)
-                        chmod +x ../jenkins/${awsEnvironment}.sh
-                        ../jenkins/${awsEnvironment}.sh ${terraformAction}
-                    """
                 }
             }
         }

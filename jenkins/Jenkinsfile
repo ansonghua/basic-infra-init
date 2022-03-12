@@ -98,8 +98,8 @@ pipeline {
                     
                              
                         cd terraform 
-                        chmod +x ../jenkins/${awsEnvironment}.sh
-                        ../jenkins/${awsEnvironment}.sh ${terraformAction}
+                        chmod +x ../jenkins/"${awsEnvironment}".sh
+                        ../jenkins/"${awsEnvironment}".sh "${terraformAction}"
 
                 }
             }

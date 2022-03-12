@@ -1,5 +1,5 @@
 bucket         = "terraform-remote-state-237849564662"
-key            = "asap-app/prod/terraform.tfstate"
+key            = "ccs-asap/prod/terraform.tfstate"
 dynamodb_table = "terraform-remote-state"
 region         = "us-east-1"
 encrypt        = true

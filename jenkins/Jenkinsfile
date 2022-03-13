@@ -57,7 +57,7 @@ pipeline {
             image 'cafebabe2018/jenkins-terraform'
        //     image 'hashicorp/terraform'
             // label 'LINUX-SLAVE'
-            args  '--entrypoint="" -u root -v /opt/jenkins/.aws:/root/.aws'
+            args  '--entrypoint="" -u jenkins -v /opt/jenkins/.aws:/root/.aws'
         }
     }
     options {
@@ -100,6 +100,7 @@ pipeline {
                     sh script: """
                         
                         cd 
+                        su 
                         pwd
                         ls -al
                         cd terraform

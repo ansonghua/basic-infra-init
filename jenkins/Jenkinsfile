@@ -100,7 +100,7 @@ pipeline {
                     sh script: """
                         
                         cd 
-                        
+                        cd terraform
                     """
                 }
             }

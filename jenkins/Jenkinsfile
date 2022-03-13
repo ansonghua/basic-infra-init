@@ -54,8 +54,8 @@ def region = 'us-east-1'  // TODO
 pipeline {
     agent { 
         docker {
-            image 'cafebabe2018/jenkins-terraform'
-       //     image 'hashicorp/terraform'
+        //    image 'cafebabe2018/jenkins-terraform'
+            image 'hashicorp/terraform'
             // label 'LINUX-SLAVE'
             args  '--entrypoint="" -u jenkins -v /opt/jenkins/.aws:/root/.aws'
         }

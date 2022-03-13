@@ -54,7 +54,7 @@ def region = 'us-east-1'  // TODO
 pipeline {
     agent { 
         docker {
-            image 'cafebabe2018/my-tool'
+            image 'cafebabe2018/jenkins-terraform'
        //     image 'hashicorp/terraform'
             // label 'LINUX-SLAVE'
             args  '--entrypoint="" -u root -v /opt/jenkins/.aws:/root/.aws'
@@ -98,7 +98,7 @@ pipeline {
                 withAWS(region:"${region}", credentials:"${awsCredentialsId}", role:"${env.DEPLOY_ROLE}", roleAccount:"${env.AWS_ACCOUNT_NUMBER}", duration: 3600, roleSessionName: 'deploy-infra-session'){
                     
                     sh script: """
-                        cd ~
+                        
                         cd terraform
                     """
                 }

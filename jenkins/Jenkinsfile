@@ -97,8 +97,9 @@ pipeline {
                 
               //  chmod +x ../jenkins/'${awsEnvironment}'.sh
                 withAWS(region:"${region}", credentials:"${awsCredentialsId}", role:"${env.DEPLOY_ROLE}", roleAccount:"${env.AWS_ACCOUNT_NUMBER}", duration: 3600, roleSessionName: 'deploy-infra-session'){
-                    sh script: """
+                   
                         cd ./terraform
+                    sh script: """
                     """
                     
                     //chmod +x '../jenkins/poc.sh'

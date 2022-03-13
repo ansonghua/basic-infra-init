@@ -99,9 +99,6 @@ pipeline {
                     
                     sh script: """
                         
-                        cd 
-                        su 
-                        pwd
                         ls -al
                         cd terraform
                     """

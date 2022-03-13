@@ -94,9 +94,10 @@ pipeline {
         }
         stage('RunTerraform') {
             steps {                          
-               sh script: """
-                  cd terraform   
-               """
+               sh 'cd terraform'
+            //    sh script: """
+            //       cd terraform   
+            //    """
               //  chmod +x ../jenkins/'${awsEnvironment}'.sh
                 withAWS(region:"${region}", credentials:"${awsCredentialsId}", role:"${env.DEPLOY_ROLE}", roleAccount:"${env.AWS_ACCOUNT_NUMBER}", duration: 3600, roleSessionName: 'deploy-infra-session'){
                    

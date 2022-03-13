@@ -57,7 +57,7 @@ pipeline {
            // image 'cafebabe2018/jenkins-terraform'
             image 'hashicorp/terraform'
             // label 'LINUX-SLAVE'
-            args  '--entrypoint="" -u jenkins -v /opt/jenkins/.aws:/jenkins/.aws'
+            args  '--entrypoint="" -u root -v /opt/jenkins/.aws:/jenkins/.aws'
         }
     }
     options {
